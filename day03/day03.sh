@@ -1,76 +1,94 @@
 #!/bin/bash
 
 input=input.txt
+list=$(cat $input)
 
-# Gamma rate = most common value of each column
-# Epsilon rate = least common
+# Uncomment for verbose output
+#verbose=1
 
-# Input:
-#	100 
-#	110
-#	110
-#	011
+generator_rating=""
+scrubber_rating=""
+	
+function find_number () {
+	# Function to perform the searching algoritm given a switch input
+	list_working="$list"
+	sum=0
+	len=$(echo "$list_working" | head -n1 | tr -d '\n' | wc -c)
 
-# Gamma: 110
-# Epsil: 001
+	regex="^"
 
-len=$(head -n1 $input | tr -d '\n' | wc -c)
-lines=$(wc -l $input | cut -d' ' -f 1)
-
-i=0
-
-# Populate array with as many 0's as each line of input has digits
-while [ $i -lt $len ]; do
-	count_array+=(0)
-	i=$((i+1))
-done
-
-while read -r line; do
-
-	# Loop throuh each digit of each line
+	# Loop through each line of $list_working, tally spot x and use grep to slice down list_working
 	i=0
 	while [ $i -lt $len ]; do
-		#echo -n ${line:$i:1}	
+		lines=$(echo "$list_working" | wc -l | cut -d' ' -f 1)
+
+		while read -r line; do	
+			if [ ${line:$i:1} -eq 1 ]; then
+				# Digit $i is 1
+				sum=$((sum+1))
+			fi
+		done <<< "$list_working"
+
+		if ! [ -z $verbose ]; then echo There are $sum 1 bits and $(($lines - $sum)) 0 bits.; fi
+
+		if [[ "$1" == oxygen ]]; then
+			# We want to find the oxygen generator rating
+			if [ $sum -ge $(($lines - $sum)) ]; then
+				# 1 is the most common (or 1/0 are equal)
+				regex=${regex}"1"
+				if ! [ -z $verbose ]; then echo Add a 1 to regex, $regex; fi
+			else
+				# Else, 0 is the most common
+				regex=${regex}"0"
+				if ! [ -z $verbose ]; then echo Add a 0 to regex, $regex; fi
+			fi
+		elif [[ "$1" == co2 ]]; then
+			# We want to find the co2 scrubber rating
+			if [ $sum -ge $(($lines - $sum)) ]; then
+				# 0 is the least common (or 1/0 are equal)
+				regex=${regex}"0"
+				if ! [ -z $verbose ]; then echo Add a 0 to regex, $regex; fi
+			else
+				# Else, 1 is the least common
+				regex=${regex}"1"
+				if ! [ -z $verbose ]; then echo Add a 1 to regex, $regex; fi
+			fi
+		else
+			echo Error: Invalid input \""$1"\" to function find_number
+			exit -1
+		fi
 		
-		# If 1, add to running total array
-		if [ ${line:$i:1} -eq "1" ]; then
-			count_array[$i]=$(( ${count_array[$i]} + 1 ))
+		# Remove non-matching lines
+		list_working=$(echo "$list_working" | grep $regex)	
+		if ! [ -z $verbose ]; then echo New list is: $list_working; fi
+
+		# If only 1 address left, we're done
+		if [ $(echo "$list_working" | wc -l) -eq "1" ]; then
+			if [[ "$1" == oxygen ]]; then
+				generator_rating=$list_working
+			elif [[ "$1" == co2 ]]; then
+				scrubber_rating=$list_working
+			else
+				echo Error: Something went wrong
+				exit -1
+			fi
+			break
 		fi
 
-		i=$((i+1))
+		sum=0
+		i=$(($i+1))
 	done
-	#echo
-done < $input
+}
 
-threshhold=$(( $lines / 2))
-gamma=""
-epsil=""
+find_number oxygen
+find_number co2
 
-i=0
-while [ $i -lt $len ]; do
-	if [ ${count_array[$i]} -gt $threshhold ]; then
-		# More than half of the lines have that digit set to '1'
-		gamma=${gamma}"1"
-		epsil=${epsil}"0"
-	else
-		# Less than half are '1' (or, exactly half)
-		gamma=${gamma}"0"
-		epsil=${epsil}"1"
-	fi		
-	i=$((i+1))
-done
+generator_d=$(echo "$((2#$generator_rating))")
+scrubber_d=$(echo "$((2#$scrubber_rating))")
 
-echo
-echo Gamma binary rate is $gamma
-echo Epsilon binary rate is $epsil
+echo The generator value is $generator_rating or $generator_d
+echo The scrubber value is $scrubber_rating or $scrubber_d
 
-gamma_d=$(echo "$((2#$gamma))")
-epsil_d=$(echo "$((2#$epsil))")
+support_rating=$(( $generator_d * $scrubber_d ))
 
-echo
-echo Gamma decimal rate is $gamma_d
-echo Epsilon decimal rate is $epsil_d
-
-power=$(( $gamma_d * $epsil_d ))
-echo 
-echo Total power consumption is $power
+echo Total life support rating of the submarine is $support_rating
