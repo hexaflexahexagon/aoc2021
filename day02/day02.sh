@@ -4,6 +4,7 @@ input=input.txt
 
 pos_hor=0
 pos_ver=0
+aim=0
 
 while read -r line; do
 	action=$(echo $line | awk '{ print $1 }')
@@ -11,13 +12,17 @@ while read -r line; do
 
 	if [[ "$action" == "forward" ]]; then
 		pos_hor=$(($pos_hor + $units))
+		pos_ver=$(($pos_ver + ( $aim * $units )))
+
 		echo $line adds $units to horiz, resulting in $pos_hor
+		echo $line also adds $(($aim * $units)) to depth, resulting in $pos_ver
+
 	elif [[ "$action" == "down" ]]; then
-		pos_ver=$(($pos_ver + $units))
-		echo $line adds $units to depth, resulting in $pos_ver
+		aim=$(($aim + $units))
+		echo $line changes aim by $units, resulting in $aim
 	elif [[ "$action" == "up" ]]; then
-		pos_ver=$(($pos_ver - $units))
-		echo $lien removes $units from depth, resulting in $pos_ver
+		aim=$(($aim - $units))
+		echo $line changes aim by $units, resulting in $aim
 	else
 		echo what is "$action"
 		exit -1
