@@ -4,8 +4,8 @@ My collection of code for AOC 2021, which may or may not be complete. YMMV.
 
 ## Checklist
 [X] day 1 
-[ ] day 2 
-[ ] day 3
+[X] day 2 
+[X] day 3
 [ ] day 4
 [ ] day 5
 [ ] day 6
