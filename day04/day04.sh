@@ -1,10 +1,12 @@
 #!/bin/bash
 
 # this takes over 2.5 minutes to do the full challenge, consider some optimizations?
+# ... and almost 13 minutes for part 2... use python next time
 
 fileSource="input.txt"
 file="${fileSource}-tmp"
-cat $fileSource | sed 's/  / /g' | sed 's/^ //g' > ${file}
+rm $file 2>/dev/null
+cat $fileSource | sed 's/  / /g' | sed 's/^ //g' > $file
 
 draw=$(head $file -n1)
 drawhead=""
@@ -24,7 +26,7 @@ function board () {
 
 # calculate the final score after board $1 wins with call $2
 function score () {
-	echo Board \#$1 wins, last drawn number is: $2
+	echo Board \#$1 was the last to be solved, last drawn number is: $2
 	
 	sum=0	
 	k=0
@@ -94,8 +96,14 @@ while true; do
 		let "j++"
 	done
 
+	# Prepare array for board checking
+	while [ $tmp -lt "$boardcount" ]; do
+		board+=("false")	
+		let "tmp++"
+	done
+	
 	# Check if we have any bingos
-	j=0	
+	j=0
 	while [ $j -lt "$boardcount" ]; do
 		k=0
 		while [ $k -lt "$numcount" ]; do
@@ -116,8 +124,7 @@ while true; do
 				${!board_horiz2} == "true" && \
 				${!board_horiz3} == "true" && \
 				${!board_horiz4} == "true" ]]); then
-				score $j $drawhead
-				exit 1
+				board[$j]="true"
 			fi
 
 			if ([[ ${!board_sub} == "true" &&\
@@ -125,8 +132,7 @@ while true; do
 				${!board_vert2} == "true" &&\
 				${!board_vert3} == "true" &&\
 				${!board_vert4} == "true" ]]); then
-				score $j $drawhead
-				exit 1
+				board[$j]="true"
 			fi
 
 			let "k++"
@@ -134,5 +140,23 @@ while true; do
 		let "j++"
 	done
 	let "i++"
+	
+	# Here after being done with all x boards at once
+	numsolved=0
+	j=0
+	while [ $j -lt "$boardcount" ]; do
+		if [[ ${board[$j]} == "true" ]]; then
+			let "numsolved++"
+		else
+			lastunsolved=$j
+		fi
+		let "j++"
+	done
+
+	# Only 1 board is left unsolved
+	if [ $numsolved -eq $boardcount ]; then
+		score $lastunsolved $drawhead
+		exit 1
+	fi
 done
 exit -1

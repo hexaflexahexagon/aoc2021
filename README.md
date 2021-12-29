@@ -6,7 +6,7 @@ My collection of code for AOC 2021, which may or may not be complete. YMMV.
 [X] day 1 
 [X] day 2 
 [X] day 3
-[ ] day 4
+[X] day 4
 [ ] day 5
 [ ] day 6
 [ ] day 7
