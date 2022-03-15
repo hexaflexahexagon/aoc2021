@@ -27,3 +27,13 @@ My collection of code for AOC 2021, which may or may not be complete. YMMV.
 - [ ] day 23
 - [ ] day 24
 - [ ] day 25
+
+## Python setup
+```
+python3 -m venv aoc2021-env
+source aoc2021-env/bin/activate
+python3 -m pip install -r requirements.txt
+
+# When done
+deactivate
+```
