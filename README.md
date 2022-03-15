@@ -1,12 +1,18 @@
 # AOC2021
 
-My collection of code for AOC 2021, which may or may not be complete. YMMV.
+My collection of code for AOC 2021, which may or may not ever be completed.
 
 ## Checklist
+
+X means done in both Python and Bash
+P means Python
+B means Bash
+Space means not finished
+
 - [X] day 1
 - [X] day 2
-- [X] day 3
-- [X] day 4
+- [B] day 3
+- [B] day 4
 - [ ] day 5
 - [ ] day 6
 - [ ] day 7
