@@ -11,7 +11,7 @@ Space means not finished
 
 - [X] day 1
 - [X] day 2
-- [B] day 3
+- [X] day 3
 - [B] day 4
 - [ ] day 5
 - [ ] day 6
